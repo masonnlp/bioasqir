@@ -1,0 +1,123 @@
+"""
+This modeule implements reading pubmed xml fragments
+"""
+import os
+import gzip
+import json
+import xml.etree.ElementTree as ET
+from typing import List
+from zipfile import ZipFile
+import ijson
+from PubmedArticle import PubmedArticle
+
+
+class PubmedReader:
+    """
+    This class is responsible for reading the Pubmed dataset
+    """
+
+    def __init__(self):
+        """
+        default constructor doesn't do anything
+        """
+        pass
+
+    def get_xml_frags(self, dir: str) -> List[str]:
+        """
+        given a directory where all the xml fragments reside
+        will return the list of all the xml fragments
+        """
+        file_names = os.listdir(dir)
+        file_indexes = [i for i, val in enumerate(
+            map(lambda nm: nm.startswith("pubmed")
+                and nm.endswith(".xml.gz"),
+                file_names)) if val]
+        return list(map(lambda i: file_names[i], file_indexes))
+
+    def process_xml_frags(
+            self, dir: str,
+            max_article_count: int = 10000000) -> List[PubmedArticle]:
+        frags = self.get_xml_frags(dir)
+        remaining_count = max_article_count
+        for frag in frags:
+            if remaining_count > 0:
+                articles = self.process_xml_frag(dir + "/"
+                                                 + frag, remaining_count)
+                remaining_count -= len(articles)
+                if len(articles) == 0:
+                    break
+                for article in articles:
+                    yield article
+            else:
+                break
+
+    def process_xml_frag(
+            self, fname: str, max_article_count:
+            int = 10000000) -> List[PubmedArticle]:
+        """
+        This method reads to a complete gzipped xml file
+        and extracts eact PubmedArticle, and return a list
+        of PubmedArticle objects that contain all the relevant
+        fields
+        """
+        articles = []
+        with gzip.open(fname, 'rt') as f:
+            count = 0
+            pubmed_article_txt = ""
+            record = False
+            while True:
+                line = f.readline()
+                if not line:
+                    break
+                if '<PubmedArticle>' in line:
+                    record = True
+                if record:
+                    pubmed_article_txt += line
+                if '</PubmedArticle>' in line:
+                    if count >= max_article_count:
+                        print("reached max article count ending read")
+                        break
+                    count += 1
+                    record = False
+                    articles.append(
+                        self.process_pubmed_article_xml(pubmed_article_txt))
+                    pubmed_article_txt = ""
+        print("fname", fname, "articles", count)
+        return articles
+
+    def process_pubmed_article_xml(self, txt: str) -> PubmedArticle:
+        """
+        this article takes an XML fragment of a single Pubmed article
+        entry and parses it for data
+        It return a populated PubmedArticle object
+        """
+        root = ET.fromstring(txt)
+        pmid = root.findtext('.//PMID')
+        title = root.findtext('.//ArticleTitle')
+        abstract_text = root.findtext('.//AbstractText')
+        journal = root.findtext('.//Title')
+        year = root.findtext('.//PubDate/Year')
+        mesh_major = list(
+            map(lambda x: x.text, root.findall(".//DescriptorName")))
+        return PubmedArticle(
+            pmid, title, journal, year, abstract_text, mesh_major)
+
+
+# TODO add unit tests
+# TODO add ability to index right off the pubmed site
+# fname = "data/allMeSH_2020.zip"
+# f2 = "data/allMeSH_2020.json"
+# f3 = "allMeSH_2020.json"
+
+
+# print("startstart")
+# reader = PubmedReader()
+# count = 0
+# for article in reader.process_xml_frags('data2', max_article_count=3000):
+#     count += 1
+#     if count % 1000 == 0:
+#         print('count', count)
+
+# print('count', count)
+# print(article.abstract_text)
+# print("done done")
