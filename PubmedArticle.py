@@ -9,12 +9,12 @@ class PubmedArticle:
     # seem to be 14,913,938 articles
 
     def fromDict(data: dict):
+        pmid = data["pmid"]
+        title = data["title"]
         journal = data["journal"]
         mesh_major = data["meshMajor"]
         year = data["year"]
         abstract_text = data["abstractText"]
-        pmid = data["pmid"]
-        title = data["title"]
         return PubmedArticle(pmid, title, journal,
                              year, abstract_text, mesh_major)
 

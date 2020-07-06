@@ -100,7 +100,6 @@ class PubmedIndexer:
             abstract_text=TEXT(stored=True, analyzer=StemmingAnalyzer()))
         self.pubmed_article_ix = index.create_in(
             "indexdir", self.pubmed_article_schema)
-        print("index object created")
 
     def rm_index(self, indexpath: str = "indexdir") -> None:
         """
@@ -159,8 +158,8 @@ class PubmedIndexer:
         pubmed_article_writer.commit()
         print("commiting index, added", count, "documents")
 
-    def search(self, query=u"disease",
-               max_results: int = 10) -> List[PubmedArticle]:
+    def query_pubmed_articles(self, query: str = u"nederduits",
+                              max_results: int = 10):
         """
         This is our simple starter method to query the index
 
@@ -177,16 +176,10 @@ class PubmedIndexer:
         qp = QueryParser("abstract_text", schema=self.pubmed_article_schema)
         q = qp.parse(query)
         with self.pubmed_article_ix.searcher() as s:
-            results = s.search(q, limit=max_results)
-            print(results)
+            results = s.search(q)
             for result in results:
-                pa = PubmedArticle(result['pmid'],
-                                   result['title'],
-                                   result['journal'],
-                                   result['year'],
-                                   result['abstract_text'],
-                                   result['mesh_major'])
-                res.append(pa)
+                res.append(result)
+                print(result)
             return res
 
     def print_results(results):
@@ -198,7 +191,7 @@ class PubmedIndexer:
         for result in results:
             print(result)
 
-def example_create_new_index():
+def test_main():
     """
     main testing method
     TODO: make it more exhaustive
@@ -207,25 +200,13 @@ def example_create_new_index():
     pubmed_indexer = PubmedIndexer()
     pubmed_indexer.mk_index(overwrite=True)
     reader = PubmedReader()
-    print("now", datetime.now())
     print("starting reader")
-    articles = reader.process_xml_frags('data2', max_article_count=1000)
+    articles = reader.process_xml_frags('data2', max_article_count=30000000)
     print("starting indexer")
-    pubmed_indexer.index_docs(articles, limit=1000)
+    pubmed_indexer.index_docs(articles)
     print("done indexing")
     print("now", datetime.now())
-    pubmed_indexer.search("disease")
+    pubmed_indexer.query_pubmed_articles("DICER1")
     print("now", datetime.now())
     print("ran Query")
-    return pubmed_indexer
-
-
-def example_use_existing_index():
-    print("now", datetime.now())
-    pubmed_indexer = PubmedIndexer()
-    pubmed_indexer.mk_index()
-    pubmed_indexer.search("disease")
-    print("now", datetime.now())
-    print("ran Query")
-    return pubmed_indexer
 
