@@ -29,3 +29,4 @@ mkdir data2
 cd data2
 wget --no-parent -r -nd -Pdata2 ftp://ftp.ncbi.nlm.nih.gov/pubmed/updatefiles/
 ```
+5. look at the method example_create_new_index in the module PubmedIndexer.py to see how to use the system -- Note: PubmedIndexer.py is the main interface for client applications into the system 
