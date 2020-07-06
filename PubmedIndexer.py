@@ -198,6 +198,7 @@ class PubmedIndexer:
         for result in results:
             print(result)
 
+
 def example_create_new_index():
     """
     main testing method
