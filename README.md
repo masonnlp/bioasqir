@@ -22,6 +22,13 @@ pip install pipenv
 cd bioasqir
 pipenv install
 ```
+Note: if the above command does not work try the following:
+```
+python --version
+```
+```
+pipenv --python (version number from above) install
+```
 
 4. Download the pubmed dataset from ftp://ftp.ncbi.nlm.nih.gov/pubmed/updatefiles/ -- not this is not necessary -- another more efficient is to have someone who alrwady has created this index to share their index with you. But if you must you can follow the following commands (note you must have wget installed on your system -- see https://www.gnu.org/software/wget/)
 ```
