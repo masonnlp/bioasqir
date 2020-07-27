@@ -25,8 +25,6 @@ pipenv install
 Note: if the above command does not work try the following:
 ```
 python --version
-```
-```
 pipenv --python (version number from above) install
 ```
 
