@@ -35,7 +35,7 @@ class PubmedIndexer:
     4. This module allows all this data to be indexed
     5. The index takes about 5 hours to genrate on a medium powered laptop
     6. The index directly is roughly 7 GB
-    7. The index directoy can be tarred(zipped) and shared between users
+    7. The index directory can be tarred(zipped) and shared between users
     8. We will probably rename this module pubmed_ir soon and relase it to PyPI
 
     MISSING & DESIRABLE FUNCTIONALITY
@@ -86,11 +86,14 @@ class PubmedIndexer:
         None
             it is a void method and returns the None value
         """
+        use_existing_index = True
         if os.path.exists(indexpath):
             if overwrite:
                 shutil.rmtree(indexpath)
+                use_existing_index = False
         if not os.path.exists(indexpath):
             os.mkdir(indexpath)
+            use_existing_index = False
         self.pubmed_article_schema = Schema(
             pmid=ID(stored=True),
             title=TEXT(stored=True),
@@ -98,8 +101,15 @@ class PubmedIndexer:
             mesh_major=IDLIST(stored=True),
             year=NUMERIC(stored=True),
             abstract_text=TEXT(stored=True, analyzer=StemmingAnalyzer()))
-        self.pubmed_article_ix = index.create_in(
-            "indexdir", self.pubmed_article_schema)
+        print(use_existing_index)
+        if not use_existing_index:
+            self.pubmed_article_ix = index.create_in(
+                indexpath,
+                self.pubmed_article_schema,
+                indexname="pubmed_articles")
+        else:
+            self.pubmed_article_ix = index.open_dir(
+                indexpath, indexname="pubmed_articles")
         print("index object created")
 
     def rm_index(self, indexpath: str = "indexdir") -> None:
@@ -159,7 +169,7 @@ class PubmedIndexer:
         pubmed_article_writer.commit()
         print("commiting index, added", count, "documents")
 
-    def search(self, query=u"disease",
+    def search(self, query,
                max_results: int = 10) -> List[PubmedArticle]:
         """
         This is our simple starter method to query the index
@@ -199,7 +209,7 @@ class PubmedIndexer:
             print(result)
 
 
-def example_create_new_index():
+def test_with_new_index():
     """
     main testing method
     TODO: make it more exhaustive
@@ -221,7 +231,7 @@ def example_create_new_index():
     return pubmed_indexer
 
 
-def example_use_existing_index():
+def test_with_existing_index():
     print("now", datetime.now())
     pubmed_indexer = PubmedIndexer()
     pubmed_indexer.mk_index()
@@ -229,4 +239,3 @@ def example_use_existing_index():
     print("now", datetime.now())
     print("ran Query")
     return pubmed_indexer
-
