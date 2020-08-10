@@ -56,12 +56,12 @@ class PubmedReader:
             int = 10000000) -> List[PubmedArticle]:
         """
         This method reads to a complete gzipped xml file
-        and extracts eact PubmedArticle, and return a list
+        and extracts each PubmedArticle, and returns a list
         of PubmedArticle objects that contain all the relevant
         fields
         """
         articles = []
-        with gzip.open(fname, 'rt') as f:
+        with gzip.open(fname, 'rt', encoding="utf-8") as f:
             count = 0
             pubmed_article_txt = ""
             record = False
@@ -89,7 +89,7 @@ class PubmedReader:
         """
         this article takes an XML fragment of a single Pubmed article
         entry and parses it for data
-        It return a populated PubmedArticle object
+        It returns a populated PubmedArticle object
         """
         root = ET.fromstring(txt)
         pmid = root.findtext('.//PMID')
