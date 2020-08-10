@@ -36,7 +36,7 @@ class PubmedIndexer:
     5. The index takes about 5 hours to generate on a medium powered laptop
     6. The index directly is roughly 7 GB
     7. The index directory can be tarred(zipped) and shared between users
-    8. We will probably rename this module pubmed_ir soon and release it to PyPI
+    8. We will probably rename this module pubmed_ir soon and relase it to PyPI
 
     MISSING & DESIRABLE FUNCTIONALITY
     1. It would be good to have utility function that is able to download
@@ -86,11 +86,14 @@ class PubmedIndexer:
         None
             it is a void method and returns the None value
         """
+        use_existing_index = True
         if os.path.exists(indexpath):
             if overwrite:
                 shutil.rmtree(indexpath)
+                use_existing_index = False
         if not os.path.exists(indexpath):
             os.mkdir(indexpath)
+            use_existing_index = False
         self.pubmed_article_schema = Schema(
             pmid=ID(stored=True),
             title=TEXT(stored=True),
@@ -98,8 +101,15 @@ class PubmedIndexer:
             mesh_major=IDLIST(stored=True),
             year=NUMERIC(stored=True),
             abstract_text=TEXT(stored=True, analyzer=StemmingAnalyzer()))
-        self.pubmed_article_ix = index.create_in(
-            "indexdir", self.pubmed_article_schema)
+        print(use_existing_index)
+        if not use_existing_index:
+            self.pubmed_article_ix = index.create_in(
+                indexpath,
+                self.pubmed_article_schema,
+                indexname="pubmed_articles")
+        else:
+            self.pubmed_article_ix = index.open_dir(
+                indexpath, indexname="pubmed_articles")
         print("index object created")
 
     def rm_index(self, indexpath: str = "indexdir") -> None:
@@ -209,7 +219,7 @@ class PubmedIndexer:
         file.close
 
 
-def example_create_new_index():
+def test_with_new_index():
     """
     main testing method
     TODO: make it more exhaustive
@@ -231,7 +241,7 @@ def example_create_new_index():
     return pubmed_indexer
 
 
-def example_use_existing_index():
+def test_with_existing_index():
     print("now", datetime.now())
     pubmed_indexer = PubmedIndexer()
     pubmed_indexer.mk_index()
@@ -239,20 +249,3 @@ def example_use_existing_index():
     print("now", datetime.now())
     print("ran Query")
     return pubmed_indexer
-
-
-def main():
-    print("now", datetime.now())
-    pubmed_indexer = PubmedIndexer()
-    pubmed_indexer.mk_index(overwrite=True)
-    reader = PubmedReader()
-    print("now", datetime.now())
-    print("starting reader")
-    articles = reader.process_xml_frags('data2')
-    print("starting indexer")
-    pubmed_indexer.index_docs(articles)
-    print("done indexing")
-
-if __name__ == "__main__":
-    main()
-
