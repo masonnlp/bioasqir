@@ -1,0 +1,13 @@
+<Q id="3_GHR_QA_0000559_1">
+	What is (are) keratoderma with woolly hair ?
+	<QP>
+		<Category>Disease</Category>
+		<Type>Factoid</Type>
+		<Theme>A guide to clinical trials for cancer</Theme>
+		<NER>clinical trials</NER>
+		<NER>cancer</NER>
+		<Related type="Synonym">Intervention study</Related>
+		<Query>What clinical trials cancer</Query>
+    </QP>
+	<IR></IR>
+</Q>

@@ -33,7 +33,7 @@ class PubmedIndexer:
     3. The complete pubmed dataset is just under 7 GB of compressed
       XML shards (as of this writing)
     4. This module allows all this data to be indexed
-    5. The index takes about 5 hours to genrate on a medium powered laptop
+    5. The index takes about 5 hours to generate on a medium powered laptop
     6. The index directly is roughly 7 GB
     7. The index directory can be tarred(zipped) and shared between users
     8. We will probably rename this module pubmed_ir soon and relase it to PyPI
@@ -47,7 +47,7 @@ class PubmedIndexer:
     4. We might make the index generation system more customization interms
        of things such as Analyzers, stop-words, etc.
     5. We may need a customizable result scoring function -- beyond BM25
-    6. We may want a more sophistacted querying interface, boolean queries, etc
+    6. We may want a more sophisticated querying interface, boolean queries, etc
     7. We need a lot of testing to certify the system
     8. It is not clear if we can add documents to an existing index
     9. It is not clear how we can re-index an existing index
@@ -70,16 +70,16 @@ class PubmedIndexer:
     def mk_index(self, indexpath: str = "indexdir",
                  overwrite: bool = False) -> None:
         """
-        creates an Whoosh based index for subsequent IR operatons
+        creates a Whoosh based index for subsequent IR operatons
 
         Prameters
         ---------
         indexpath: str
             The absolute or relative path where you want the index to be stored
                Note: the index path is a directory
-               this directory will contain all the Woosh files
+               this directory will contain all the Whoosh files
         overwrite: boolean
-            This will overwrite any existing index (directoy) if set to True
+            This will overwrite any existing index (directory) if set to True
             The default value is set to False (safe setting)
 
         Returns:
@@ -114,7 +114,7 @@ class PubmedIndexer:
 
     def rm_index(self, indexpath: str = "indexdir") -> None:
         """
-        This is a utlity function to delete an existing index
+        This is a utility function to delete an existing index
 
         Parameters
         ----------
@@ -140,8 +140,8 @@ class PubmedIndexer:
             The list of articles to be added to the index
         limit: init
             This is a cutoff, beyond which the indexing process will cease
-            The purpose of this parameter is to limit the amout of documents
-            to be indexed for testing purposes or quick functon execution for
+            The purpose of this parameter is to limit the amount of documents
+            to be indexed for testing purposes or quick function execution for
             experimental methods
 
         Returns
@@ -188,7 +188,7 @@ class PubmedIndexer:
         q = qp.parse(query)
         with self.pubmed_article_ix.searcher() as s:
             results = s.search(q, limit=max_results)
-            print(results)
+            #PubmedIndexer.write_results(results)
             for result in results:
                 pa = PubmedArticle(result['pmid'],
                                    result['title'],
@@ -207,6 +207,16 @@ class PubmedIndexer:
         """
         for result in results:
             print(result)
+
+    def write_results(results):
+        """
+        Utility method to write results to a text file
+        """
+        file = open("searchResults.txt", "a", encoding="utf-8")
+        for result in results:
+            file.write(str(result))
+            file.write("\n")
+        file.close
 
 
 def test_with_new_index():
