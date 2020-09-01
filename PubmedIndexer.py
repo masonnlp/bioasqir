@@ -130,8 +130,8 @@ class PubmedIndexer:
         if os.path.exists(indexpath):
             os.rmdir(indexpath)
 
-    def index_docs(self, articles: List[PubmedArticle],
-                   limit: int = 10000000) -> None:
+    def index_docs(self, articles,
+                   limit: int = 10000000):
         """"
         indexes documents into the Whoosh index
 
@@ -171,7 +171,7 @@ class PubmedIndexer:
         print("commiting index, added", count, "documents")
 
     def search(self, query,
-               max_results: int = 10) -> List[PubmedArticle]:
+               max_results: int = 10):
         """
         This is our simple starter method to query the index
 
