@@ -1,6 +1,5 @@
-from PubmedReader import PubmedReader
-from PubmedArticle import PubmedArticle
-from PubmedIndexer import PubmedIndexer
+from bioasqir import PubmedReader
+from bioasqir import PubmedIndexer
 import lxml.etree as ET
 
 def formatTree(filename):
@@ -67,9 +66,3 @@ def extract_and_write(filename):
 
     tree = ET.ElementTree(root)
     tree.write(filename, pretty_print=True)
-
-def main():
-    extract_and_write("test.XML")
-
-if __name__ == "__main__":
-    main()
