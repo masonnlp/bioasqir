@@ -34,7 +34,7 @@ class PubmedReader:
 
     def process_xml_frags(
             self, dir: str,
-            max_article_count: int = 10000000) -> List[PubmedArticle]:
+            max_article_count: int = 10000000):
         frags = self.get_xml_frags(dir)
         remaining_count = max_article_count
         for frag in frags:
@@ -51,7 +51,7 @@ class PubmedReader:
 
     def process_xml_frag(
             self, fname: str, max_article_count:
-            int = 10000000) -> List[PubmedArticle]:
+            int = 10000000):
         """
         This method reads to a complete gzipped xml file
         and extracts each PubmedArticle, and returns a list
