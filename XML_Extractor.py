@@ -1,7 +1,11 @@
-from PubmedReader import PubmedReader
-from PubmedArticle import PubmedArticle
-from PubmedIndexer import PubmedIndexer
+from bioasqir import PubmedReader
+from bioasqir import PubmedIndexer
 import lxml.etree as ET
+
+def formatTree(filename):
+    parser = ET.XMLParser(remove_blank_text=True)
+    tree = ET.parse(filename, parser)
+    tree.write(filename, pretty_print=True)
 
 def extract_and_write(filename):
     """
@@ -16,11 +20,10 @@ def extract_and_write(filename):
     </Result>
     :param filename: Name of the XML file used in the QA system
     """
+    origTree = ET.parse(filename)
+    root = origTree.getroot()
     # parser = ET.XMLParser(remove_blank_text=True)
-    # tree = ET.parse(filename, parser)
-
-    tree = ET.parse(filename)
-    root = tree.getroot()
+    # root = ET.parse(filename, parser).getroot()
 
     # Find the QP element and grab each query
     QP = root.find("QP")
@@ -37,7 +40,7 @@ def extract_and_write(filename):
     reader = PubmedReader()
     articles = reader.process_xml_frags('data2', max_article_count=1000)
     pubmed_indexer.index_docs(articles, limit=1000)
-    results = pubmed_indexer.search("disease")
+    results = pubmed_indexer.search("flu")
 
     print("Results length", len(results))
 
@@ -63,9 +66,3 @@ def extract_and_write(filename):
 
     tree = ET.ElementTree(root)
     tree.write(filename, pretty_print=True)
-
-def main():
-    extract_and_write("test.XML")
-
-if __name__ == "__main__":
-    main()

@@ -3,12 +3,10 @@ This modeule implements reading pubmed xml fragments
 """
 import os
 import gzip
-import json
 import xml.etree.ElementTree as ET
 from typing import List
-from zipfile import ZipFile
-import ijson
-from PubmedArticle import PubmedArticle
+# In Google colab, the entire repo is cloned
+from bioasqir import PubmedArticle
 
 
 class PubmedReader:
