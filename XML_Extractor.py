@@ -2,6 +2,11 @@ from bioasqir import PubmedReader
 from bioasqir import PubmedIndexer
 import lxml.etree as ET
 
+def formatTree(filename):
+    parser = ET.XMLParser(remove_blank_text=True)
+    tree = ET.parse(filename, parser)
+    tree.write(filename, pretty_print=True)
+
 def extract_and_write(filename):
     """
     Extract information from IR system and write to XML file. Format is:
@@ -17,14 +22,18 @@ def extract_and_write(filename):
     """
     origTree = ET.parse(filename)
     root = origTree.getroot()
+    # parser = ET.XMLParser(remove_blank_text=True)
+    # root = ET.parse(filename, parser).getroot()
 
     # Find the QP element and grab each query
-    Q = root.find("Q")
-    question = Q.text
-    QP = Q.find("QP")
+    QP = root.find("QP")
+    question = root.text
     query = QP.find("Query").text
 
     # Use the query as the search term in the IR system (assumed indexed)
+    # pubmed_indexer = PubmedIndexer()
+    # pubmed_indexer.mk_index()
+    # results = pubmed_indexer.search(query)
 
     pubmed_indexer = PubmedIndexer()
     pubmed_indexer.mk_index(overwrite=True)
@@ -33,8 +42,11 @@ def extract_and_write(filename):
     pubmed_indexer.index_docs(articles, limit=1000)
     results = pubmed_indexer.search("flu")
 
-    # Create IR tag
-    IR = ET.subElement(Q, "IR")
+    print("Results length", len(results))
+
+    # Assume an IR tag exists
+    # TODO: Create a file to setup the general structure of the XML file
+    IR = root.find("IR")
 
     # Create a subelement for each part of the result (there can be many)
     for pa in results:
