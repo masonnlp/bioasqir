@@ -8,9 +8,8 @@ from whoosh import index
 from whoosh.fields import Schema, TEXT, IDLIST, ID, NUMERIC
 from whoosh.analysis import StemmingAnalyzer
 from whoosh.qparser import QueryParser
-# In Google colab, the entire repo is cloned
-from bioasqir import PubmedReader
-from bioasqir import PubmedArticle
+from PubmedReader import PubmedReader
+from PubmedArticle import PubmedArticle
 from datetime import datetime
 from typing import List
 

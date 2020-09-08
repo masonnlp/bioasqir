@@ -6,7 +6,7 @@ import gzip
 import xml.etree.ElementTree as ET
 from typing import List
 # In Google colab, the entire repo is cloned
-from bioasqir import PubmedArticle
+from PubmedArticle import PubmedArticle
 
 
 class PubmedReader:
