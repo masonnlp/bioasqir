@@ -7,7 +7,7 @@ def formatTree(filename):
     tree = ET.parse(filename, parser)
     tree.write(filename, pretty_print=True)
 
-def extract_and_write(filename):
+def extract_and_write(filename, results, query):
     """
     Extract information from IR system and write to XML file. Format is:
     <Result PMID=1>
@@ -26,29 +26,26 @@ def extract_and_write(filename):
     # root = ET.parse(filename, parser).getroot()
 
     # Find the QP element and grab each query
-    QP = root.find("QP")
-    question = root.text
-    query = QP.find("Query").text
+    # QP = root.find("QP")
+    # question = root.text
+    # query = QP.find("Query").text
 
-    # Use the query as the search term in the IR system (assumed indexed)
+    Q = root.find("Q")
+    IR = Q.find("IR")
+
     # pubmed_indexer = PubmedIndexer()
-    # pubmed_indexer.mk_index()
+    # pubmed_indexer.mk_index(overwrite=True)
+    # reader = PubmedReader()
+    # articles = reader.process_xml_frags('data2', max_article_count=1000)
+    # pubmed_indexer.index_docs(articles, limit=1000)
     # results = pubmed_indexer.search(query)
-
-    pubmed_indexer = PubmedIndexer()
-    pubmed_indexer.mk_index(overwrite=True)
-    reader = PubmedReader()
-    articles = reader.process_xml_frags('data2', max_article_count=1000)
-    pubmed_indexer.index_docs(articles, limit=1000)
-    results = pubmed_indexer.search("flu")
 
     print("Results length", len(results))
 
-    # Create IR subelement
-    IR = ET.SubElement(root, "IR")
-
     # Create a subelement for each part of the result (there can be many)
     for pa in results:
+        queryUsed = ET.SubElement(IR, "QueryUsed")
+        queryUsed.text = query
         result = ET.SubElement(IR, "Result")
         result.set("PMID", pa.pmid)
         journal = ET.SubElement(result, "Journal")
@@ -67,7 +64,19 @@ def extract_and_write(filename):
     tree.write(filename, pretty_print=True)
 
 def main():
-    extract_and_write("test.XML")
+    pubmed_indexer = PubmedIndexer()
+    pubmed_indexer.mk_index(overwrite=True)
+    reader = PubmedReader()
+    articles = reader.process_xml_frags('data2', max_article_count=10000)
+    pubmed_indexer.index_docs(articles, limit=10000)
+
+    origTree = ET.parse("test.XML")
+    root = origTree.getroot()
+    for question in root.findall('Q'):
+        qp = question.find("QP")
+        query = qp.find("Query").text
+        results = pubmed_indexer.search(query)
+        extract_and_write("test.XML",results, query)
 
 if __name__ == "__main__":
     main()
