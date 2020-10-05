@@ -170,7 +170,7 @@ class PubmedIndexer:
         print("commiting index, added", count, "documents")
 
     def search(self, query,
-               max_results: int = 1) -> List[PubmedArticle]:
+               max_results: int = 2) -> List[PubmedArticle]:
         """
         This is our simple starter method to query the index
 
