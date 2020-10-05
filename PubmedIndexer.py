@@ -170,7 +170,7 @@ class PubmedIndexer:
         print("commiting index, added", count, "documents")
 
     def search(self, query,
-               max_results: int = 10) -> List[PubmedArticle]:
+               max_results: int = 1) -> List[PubmedArticle]:
         """
         This is our simple starter method to query the index
 
@@ -188,14 +188,21 @@ class PubmedIndexer:
         q = qp.parse(query)
         with self.pubmed_article_ix.searcher() as s:
             results = s.search(q, limit=max_results)
-            #PubmedIndexer.write_results(results)
             for result in results:
-                pa = PubmedArticle(result['pmid'],
-                                   result['title'],
-                                   result['journal'],
-                                   result['year'],
-                                   result['abstract_text'],
-                                   result['mesh_major'])
+                if result['year']:
+                    pa = PubmedArticle(result['pmid'],
+                                       result['title'],
+                                       result['journal'],
+                                       result['year'],
+                                       result['abstract_text'],
+                                       result['mesh_major'])
+                else:
+                    pa = PubmedArticle(result['pmid'],
+                                       result['title'],
+                                       result['journal'],
+                                       '0000',
+                                       result['abstract_text'],
+                                       result['mesh_major'])
                 res.append(pa)
             return res
 
@@ -207,16 +214,6 @@ class PubmedIndexer:
         """
         for result in results:
             print(result)
-
-    def write_results(results):
-        """
-        Utility method to write results to a text file
-        """
-        file = open("searchResults.txt", "a", encoding="utf-8")
-        for result in results:
-            file.write(str(result))
-            file.write("\n")
-        file.close
 
 
 def test_with_new_index():

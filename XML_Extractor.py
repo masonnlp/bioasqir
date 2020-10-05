@@ -25,22 +25,8 @@ def extract_and_write(filename, results, query):
     # parser = ET.XMLParser(remove_blank_text=True)
     # root = ET.parse(filename, parser).getroot()
 
-    # Find the QP element and grab each query
-    # QP = root.find("QP")
-    # question = root.text
-    # query = QP.find("Query").text
-
     Q = root.find("Q")
     IR = Q.find("IR")
-
-    # pubmed_indexer = PubmedIndexer()
-    # pubmed_indexer.mk_index(overwrite=True)
-    # reader = PubmedReader()
-    # articles = reader.process_xml_frags('data2', max_article_count=1000)
-    # pubmed_indexer.index_docs(articles, limit=1000)
-    # results = pubmed_indexer.search(query)
-
-    print("Results length", len(results))
 
     # Create a subelement for each part of the result (there can be many)
     for pa in results:
@@ -64,17 +50,35 @@ def extract_and_write(filename, results, query):
     tree.write(filename, pretty_print=True)
 
 def main():
+    # pubmed_indexer = PubmedIndexer()
+    # pubmed_indexer.mk_index()
+    # results = pubmed_indexer.search('flu')
+    # print(results)
+
+    # Index ALL the pubmed data
+    # reader = PubmedReader()
+    # articles = reader.process_xml_frags('data2', max_article_count=5000000)
+    # pubmed_indexer.index_docs(articles, limit=5000000)
+
+    # Figure out how to have IR results write to the corresponding question, not all at the first line
+    # And the KeyError: 'year' problem
     pubmed_indexer = PubmedIndexer()
-    pubmed_indexer.mk_index(overwrite=True)
+    pubmed_indexer.mk_index('indexdir2', overwrite=True)
     reader = PubmedReader()
-    articles = reader.process_xml_frags('data2', max_article_count=10000)
-    pubmed_indexer.index_docs(articles, limit=10000)
+    articles = reader.process_xml_frags('data2', max_article_count=5000)
+    pubmed_indexer.index_docs(articles, limit=5000)
 
     origTree = ET.parse("test.XML")
     root = origTree.getroot()
     for question in root.findall('Q'):
         qp = question.find("QP")
-        query = qp.find("Query").text
+
+        # If there is no query, use the original question
+        if qp.find("Query").text:
+            query = qp.find("Query").text
+        else:
+            query = question.text
+
         results = pubmed_indexer.search(query)
         extract_and_write("test.XML",results, query)
 
